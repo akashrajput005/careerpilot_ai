@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import {
   Rocket,
-  Search,
   FileText,
   AlertCircle,
-  CheckCircle2,
   Target,
   Clock,
   MessageSquare,
-  ChevronRight,
   TrendingUp,
-
   Brain,
   Upload
 } from 'lucide-react';
@@ -38,7 +34,7 @@ interface MockQuestion {
 }
 
 interface AnalysisResult {
-  is_sufficient: bool;
+  is_sufficient: boolean;
   clarification_questions: string[];
   quality_score?: number;
   relevance_score?: number;
@@ -153,7 +149,7 @@ function App() {
               className="card glass"
             >
               <div className="input-group">
-                <label><Target size={18} inline style={{ marginRight: '8px' }} /> Target Job Role</label>
+                <label><Target size={18} style={{ marginRight: '8px', display: 'inline-block' }} /> Target Job Role</label>
                 <select value={role} onChange={(e) => setRole(e.target.value)}>
                   <option value="">Select a role...</option>
                   {roles.map(r => <option key={r} value={r}>{r}</option>)}
@@ -162,7 +158,7 @@ function App() {
 
               <div className="input-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ marginBottom: 0 }}><FileText size={18} inline style={{ marginRight: '8px' }} /> Resume Content</label>
+                  <label style={{ marginBottom: 0 }}><FileText size={18} style={{ marginRight: '8px', display: 'inline-block' }} /> Resume Content</label>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <input
                       type="file"
