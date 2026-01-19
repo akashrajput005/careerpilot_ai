@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic-ai
+pydantic
+python-dotenv
+httpx
+loguru
+python-multipart
+pypdf
+gunicorn
+uvicorn[standard]
+
