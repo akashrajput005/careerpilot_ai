@@ -9,12 +9,14 @@ from pydantic_ai.models.openrouter import OpenRouterModel
 
 # OpenRouterModel picks up the API key from the environment variable
 os.environ["OPENROUTER_API_KEY"] = config.OPENROUTER_API_KEY
-model = OpenRouterModel(config.MODEL_ID)
+# Default to a FREE high-quality model to avoid 402 errors
+model_id = os.getenv("MODEL_ID", "google/gemini-2.0-flash-exp:free")
+model = OpenRouterModel(model_id)
 
 career_agent = Agent(
     model,
     output_type=AnalysisResult,
-    model_settings={"max_tokens": 2000},
+    model_settings={"max_tokens": 1000},
     retries=3,
     system_prompt=(
         "You are an expert Career Coach and Placement Officer named CareerPilot AI."
