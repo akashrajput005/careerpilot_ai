@@ -10,16 +10,12 @@ from pypdf import PdfReader
 app = FastAPI(title="CareerPilot AI Backend")
 
 # Enable CORS for frontend
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://careerpilotai-eight.vercel.app",
-]
-
+# Using allow_origins=["*"] and allow_credentials=False is the most robust way 
+# to handle dynamic Vercel preview URLs.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
