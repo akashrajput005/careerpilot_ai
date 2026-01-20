@@ -1,17 +1,22 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from schemas import AnalysisResult, ResumeInput, ErrorResponse
 from config import config
 from agent import analyze_profile
 import uvicorn
 import io
+import logging
+import traceback
 from pypdf import PdfReader
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="CareerPilot AI Backend")
 
 # Enable CORS for frontend
-# Using allow_origins=["*"] and allow_credentials=False is the most robust way 
-# to handle dynamic Vercel preview URLs.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,6 +24,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Global exception caught: {str(exc)}")
+    logger.error(traceback.format_exc())
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred.", "error": str(exc)},
+    )
+
+@app.get("/")
+def read_root():
+    return {"message": "CareerPilot AI Backend is running!", "docs": "/docs", "health": "/health"}
 
 @app.get("/health")
 def health_check():
@@ -29,6 +47,7 @@ async def parse_resume(file: UploadFile = File(...)):
     """
     Parses a PDF file and returns the extracted text.
     """
+    logger.info(f"Parsing resume: {file.filename}")
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF.")
     
@@ -42,11 +61,21 @@ async def parse_resume(file: UploadFile = File(...)):
         
         return {"filename": file.filename, "text": text.strip()}
     except Exception as e:
+        logger.error(f"PDF parsing failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to parse PDF: {str(e)}")
 
 @app.post("/analyze", response_model=AnalysisResult, responses={500: {"model": ErrorResponse}})
 async def analyze(input_data: ResumeInput):
-    return await analyze_profile(input_data)
+    try:
+        logger.info(f"Received analysis request for role: {input_data.role}")
+        return await analyze_profile(input_data)
+    except Exception as e:
+        logger.error(f"Analysis failed: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e), "error": "AI Agent Error"},
+        )
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=config.API_PORT, reload=True)
+
