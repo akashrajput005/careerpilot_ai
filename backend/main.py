@@ -10,9 +10,15 @@ from pypdf import PdfReader
 app = FastAPI(title="CareerPilot AI Backend")
 
 # Enable CORS for frontend
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://careerpilotai-eight.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
